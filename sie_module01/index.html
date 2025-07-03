@@ -1,0 +1,268 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+    body {
+        font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    }
+    .card {
+        background: linear-gradient(135deg, #232946 0%, #16161a 100%);
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 32px 0 rgba(31,41,55,0.25);
+        border: 1px solid #374151;
+        padding: 1.5rem;
+        transition: box-shadow 0.3s;
+    }
+    .card:hover {
+        box-shadow: 0 12px 48px 0 rgba(99,102,241,0.25);
+    }
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4F46E5;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .status-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+    }
+    .priority-high { background-color: #991B1B; color: #FEE2E2; }
+    .priority-medium { background-color: #9A3412; color: #FFEDD5; }
+    .priority-low { background-color: #166534; color: #DCFCE7; }
+    .journey-tofu { border-color: #38BDF8; color: #38BDF8; }
+    .journey-mofu { border-color: #FBBF24; color: #FBBF24; }
+    .journey-bofu { border-color: #34D399; color: #34D399; }
+    .journey-post { border-color: #A78BFA; color: #A78BFA; }
+    .journey-all { border-color: #F472B6; color: #F472B6; }
+    /* badge 美化 */
+    .badge {
+        display: inline-block;
+        border-radius: 9999px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+    .badge-cta { background: #059669; color: #fff; }
+    .badge-schema { background: #0ea5e9; color: #fff; }
+    .badge-faq { background: #a21caf; color: #fff; }
+    .badge-journey { background: #f59e42; color: #fff; }
+    /* 表格圓角與陰影 */
+    .pretty-table {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 4px 24px 0 rgba(31,41,55,0.15);
+    }
+    /* 歷史面板動畫 */
+    #historyPanel {
+        transition: max-height 0.3s, opacity 0.3s;
+        max-height: 500px;
+        opacity: 1;
+    }
+    #historyPanel.hidden {
+        max-height: 0;
+        opacity: 0;
+    }
+    /* 錯誤訊息美化 */
+    #error {
+        background: rgba(185,28,28,0.7);
+        color: #fee2e2;
+        border-left: 4px solid #ef4444;
+    }
+</style>
+<body class="bg-gray-900 text-gray-200">
+
+<div id="app" class="container mx-auto p-4 md:p-8">
+    <header class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            網站 AI 就緒度檢測工具 v4
+        </h1>
+        <p class="text-gray-400 text-lg">整合消費者旅程分析，評估網站在 LLM 世代的技術與內容策略健康度。</p>
+    </header>
+    <div class="max-w-3xl mx-auto mb-6">
+        <label for="apiKeyInput" class="block text-sm font-medium text-gray-400 mb-2">Google AI Gemini API 金鑰 (選填)</label>
+        <input type="text" id="apiKeyInput" placeholder="若留空，將使用環境預設金鑰" class="w-full bg-gray-800 border border-gray-600 text-white rounded-md p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow" />
+    </div>
+    <div class="max-w-3xl mx-auto mb-8 p-6 bg-gray-800/50 rounded-lg border border-gray-700 shadow-xl">
+         <h2 class="text-xl font-semibold text-white mb-4 flex items-center"><svg class="w-6 h-6 text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>網站分析器</h2>
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label for="urlInput" class="block text-sm font-medium text-gray-400 mb-1">網站 URL (必填)</label>
+                <input type="url" id="urlInput" placeholder="https://www.example.com" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow" />
+            </div>
+            <div>
+                <label for="productInput" class="block text-sm font-medium text-gray-400 mb-1">主要產品/服務 (必填)</label>
+                <input type="text" id="productInput" placeholder="例如：無線藍牙耳機" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow" />
+            </div>
+            <div class="md:col-span-2">
+                <label for="industrySelect" class="block text-sm font-medium text-gray-400 mb-1">行業/產品類別 (選填)</label>
+                <select id="industrySelect" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow">
+                    <option value="">-- 請選擇 --</option>
+                    <option value="消費性電子產品">消費性電子產品</option>
+                    <option value="美妝保養品">美妝保養品</option>
+                    <option value="服飾配件">服飾配件</option>
+                    <option value="旅遊票券服務">旅遊票券服務</option>
+                    <option value="軟體即服務 (SaaS)">軟體即服務 (SaaS)</option>
+                    <option value="金融理財服務">金融理財服務</option>
+                </select>
+            </div>
+         </div>
+         <button id="analyzeBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
+            開始分析
+        </button>
+        <p class="text-xs text-gray-400 mt-2 text-center">如遇自動抓取失敗，請改用下方「手動貼原始碼」功能</p>
+    </div>
+    <div id="loading" class="hidden text-center my-8">
+        <div class="loader inline-block animate-spin"></div>
+        <p id="loadingStatus" class="mt-4 text-lg text-gray-400">正在進行深度分析，請稍候...</p>
+    </div>
+    <div id="errorContainer" class="hidden max-w-3xl mx-auto space-y-4">
+        <div id="error" class="text-center p-4 rounded-md flex items-center justify-center">
+            <svg class="w-6 h-6 text-red-300 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-1.414 1.414M6.343 17.657l-1.414 1.414M5.636 5.636l1.414 1.414M17.657 17.657l1.414 1.414M12 8v4m0 4h.01"></path></svg>
+            <p id="errorMessage" class="text-red-300"></p>
+        </div>
+        <div id="fallback" class="p-6 bg-gray-800/50 rounded-lg border border-gray-700 shadow">
+            <h3 class="text-lg font-semibold text-amber-400 mb-2 flex items-center"><svg class="w-5 h-5 text-amber-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>備援方案：手動輸入</h3>
+            <p class="text-gray-400 text-sm mb-4">自動抓取失敗。請在目標網站頁面按右鍵，選擇「檢視網頁原始碼」，將全部內容複製並貼到下方文字區，然後點擊按鈕進行分析。</p>
+            <textarea id="sourceCodeInput" class="w-full h-40 bg-gray-900 border border-gray-600 rounded-md p-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none shadow mb-2" placeholder="將網頁原始碼 (HTML) 貼在這裡..."></textarea>
+            <button id="analyzeSourceBtn" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors duration-300">
+                分析貼上的原始碼
+            </button>
+        </div>
+    </div>
+    <div id="results" class="hidden space-y-8">
+        <!-- Row 1: Technical & Basic Health -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-sky-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>1. Root 檔案</h2>
+                <ul id="rootFilesCheck" class="space-y-3 text-gray-300"></ul>
+            </div>
+            <div class="card">
+<div id="results" class="hidden space-y-8">
+    <!-- Row 1: Technical & Basic Health -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4 text-white">1. Root 檔案</h2>
+            <ul id="rootFilesCheck" class="space-y-3 text-gray-300"></ul>
+        </div>
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4 text-white">2. 架構與 LLM 友善度</h2>
+            <ul id="architectureCheck" class="space-y-3 text-gray-300"></ul>
+        </div>
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4 text-white">3. 基礎內容信號</h2>
+             <ul id="basicContentCheck" class="space-y-3 text-gray-300"></ul>
+        </div>
+    </div>
+    <!-- Row 2: Content-Journey Alignment -->
+    <div class="card col-span-1 lg:col-span-3">
+        <h2 class="text-xl font-bold mb-4 text-white">4. 內容與消費者旅程對應分析</h2>
+        <div id="qaAnalysis" class="overflow-x-auto"></div>
+    </div>
+    <!-- Row 3: AI Recommendations -->
+     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4 text-white">5. AI 生成改善建議</h2>
+            <div id="recommendations" class="space-y-4"></div>
+        </div>
+        <div class="card">
+            <h2 class="text-xl font-bold mb-4 text-white">6. AI 消費者旅程覆蓋率洞察</h2>
+            <div id="journeyAnalysisReport" class="space-y-3 text-gray-300"></div>
+        </div>
+    </div>
+    <!-- 下載報告按鈕 -->
+    <div class="flex gap-4 mt-4">
+      <button id="downloadJsonBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">下載 JSON</button>
+      <button id="downloadCsvBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">下載 CSV</button>
+      <button id="downloadPdfBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">下載 PDF</button>
+    </div>
+</div>
+<!-- 歷史紀錄按鈕與面板 -->
+<button id="showHistoryBtn" class="text-xs text-indigo-400 underline mt-2">查看分析歷史紀錄</button>
+<div id="historyPanel" class="hidden bg-gray-800 border border-gray-700 rounded p-4 mt-2"></div>
+<script>
+let lastReport = null; // 全域暫存
+// 下載檔案工具
+function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], {type: mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+document.getElementById('downloadJsonBtn').onclick = () => {
+    if (lastReport) downloadFile('report.json', JSON.stringify(lastReport, null, 2), 'application/json');
+};
+document.getElementById('downloadCsvBtn').onclick = () => {
+    if (!lastReport) return;
+    const rows = [['問題', '類型', '旅程', '有覆蓋']];
+    (lastReport.content_alignment || []).forEach(q => {
+        rows.push([q.question, q.category, q.journey || '', q.isCovered ? '是' : '否']);
+    });
+    const csv = rows.map(r => r.map(x => `"${(x||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+    downloadFile('report.csv', csv, 'text/csv');
+};
+document.getElementById('downloadPdfBtn').onclick = () => {
+    if (!lastReport) return;
+    const reportEl = document.getElementById('results');
+    html2pdf().from(reportEl).set({margin:1, filename:'report.pdf', html2canvas:{scale:2}}).save();
+};
+// 歷史紀錄儲存與載入
+function saveHistory(url, product, report) {
+    const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]');
+    history.unshift({
+        url, product,
+        time: new Date().toISOString(),
+        summary: {
+            technical_health: report.technical_health,
+            ai_insights: report.ai_insights,
+            content_alignment: report.content_alignment
+        }
+    });
+    localStorage.setItem('analysisHistory', JSON.stringify(history.slice(0, 20)));
+}
+document.getElementById('showHistoryBtn').onclick = function() {
+    const panel = document.getElementById('historyPanel');
+    const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]');
+    if (history.length === 0) {
+        panel.innerHTML = '<p class="text-gray-400">尚無紀錄</p>';
+        panel.classList.remove('hidden');
+        return;
+    }
+    panel.innerHTML = history.map((h, i) => `
+        <div class="mb-2 p-2 border-b border-gray-700">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="font-bold">${h.product}</span>
+                    <span class="text-xs text-gray-400 ml-2">${h.url}</span>
+                </div>
+                <button class="text-xs text-indigo-400 underline" onclick="loadHistory(${i})">載入</button>
+            </div>
+            <div class="text-xs text-gray-500">${new Date(h.time).toLocaleString()}</div>
+        </div>
+    `).join('');
+    panel.classList.remove('hidden');
+};
+window.loadHistory = function(idx) {
+    const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]');
+    if (history[idx]) {
+        displayReport(history[idx].summary);
+    }
+};
+function displayReport(report) {
+    lastReport = report;
+    displayTechnicalHealth(report.technical_health);
+    displayContentAlignment(report.content_alignment);
+    displayAiInsights(report.ai_insights);
+    showResults();
+    saveHistory(urlInput.value.trim(), productInput.value.trim(), report);
+}
+</script> 
