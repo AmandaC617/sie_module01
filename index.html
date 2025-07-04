@@ -216,13 +216,14 @@ async function runAnalysis(sourceProvider) {
         showError('請務必輸入「主要產品/服務」。');
         return;
     }
-
+    const industry = industrySelect.value;
+    const region = '台灣'; // 可改為動態選擇
     const report = {};
     try {
-        showLoading('步驟 1/5: 取得與解析網站內容...');
+        showLoading('步驟 1/6: 取得與解析網站內容...');
         const { doc, siteText, validatedUrl } = await sourceProvider();
 
-        showLoading('步驟 2/5: 執行技術健康度檢測...');
+        showLoading('步驟 2/6: 執行技術健康度檢測...');
         report.technical_health = {
             root_files: await checkRootFiles(validatedUrl.origin),
             architecture: checkArchitecture(validatedUrl, doc),
@@ -234,14 +235,17 @@ async function runAnalysis(sourceProvider) {
             schema_types: detectAllSchemaTypes(doc)
         };
 
-        showLoading('步驟 3/5: 生成並分類潛在使用者問題...');
+        showLoading('步驟 3/6: 生成並分類潛在使用者問題...');
         const classifiedQuestions = await generateAndClassifyQuestions(product);
         
-        showLoading('步驟 4/5: 分析網站內容與問題對應度...');
+        showLoading('步驟 4/6: 分析網站內容與問題對應度...');
         report.content_alignment = await analyzeContentCoverage(siteText, classifiedQuestions);
 
-        showLoading('步驟 5/5: 生成 AI 洞察與改善建議...');
+        showLoading('步驟 5/6: 生成 AI 洞察與改善建議...');
         report.ai_insights = await generateAiInsights(report);
+
+        showLoading('步驟 6/6: 查詢市場領導品牌...');
+        report.market_leaders = await getMarketLeaders(industry, product, region);
 
         displayReport(report);
 
@@ -430,6 +434,7 @@ function displayReport(report) {
     displayTechnicalHealth(report.technical_health);
     displayContentAlignment(report.content_alignment);
     displayAiInsights(report.ai_insights);
+    displayMarketLeaders(report.market_leaders);
     showResults();
     saveHistory(urlInput.value.trim(), productInput.value.trim(), report);
 }
@@ -535,6 +540,25 @@ function displayAiInsights(insights) {
 
     const journeyEl = document.getElementById('journeyAnalysisReport');
     journeyEl.innerHTML = `<p class="whitespace-pre-line leading-relaxed">${insights.journeyAnalysis}</p>`;
+}
+
+function displayMarketLeaders(leaders) {
+    let el = document.getElementById('marketLeaders');
+    if (!el) {
+        // 若不存在則動態插入到 results 區塊最下方
+        el = document.createElement('div');
+        el.id = 'marketLeaders';
+        el.className = 'card mt-4';
+        document.getElementById('results').appendChild(el);
+    }
+    if (!leaders || leaders.length === 0) {
+        el.innerHTML = '<h2 class="text-xl font-bold mb-4 text-white flex items-center">🏆 市場領導品牌比對</h2><p class="text-gray-400">查無資料或查詢失敗</p>';
+        return;
+    }
+    el.innerHTML = '<h2 class="text-xl font-bold mb-4 text-white flex items-center">🏆 市場領導品牌比對</h2>' +
+        '<ul class="space-y-2">' +
+        leaders.map(l => `<li><span class="font-bold text-emerald-400">${l.brand}</span> <span class="text-gray-400">${l.product||''}</span><br><span class="text-sm text-gray-300">${l.reason}</span></li>`).join('') +
+        '</ul>';
 }
 
 // --- Utility & Helper Functions ---
@@ -759,6 +783,16 @@ window.loadHistory = function(idx) {
         displayReport(history[idx].summary);
     }
 };
+
+// 1. 新增動態領導者比對函數
+async function getMarketLeaders(industry, product, region = '台灣') {
+    const prompt = `請根據「${region}」市場的「${industry}」行業與「${product}」產品類別，列出最具領導地位的品牌與產品，並簡要說明推薦原因。請以 JSON 陣列格式回傳，每個物件包含 brand, product, reason。`;
+    try {
+        return await callGemini(prompt, 'json');
+    } catch (e) {
+        return [];
+    }
+}
 
 console.log('所有功能已載入完成！');
 </script>
