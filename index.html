@@ -227,7 +227,7 @@ async function runAnalysis(sourceProvider) {
             root_files: await checkRootFiles(validatedUrl.origin),
             architecture: checkArchitecture(validatedUrl, doc),
             llm_friendliness: checkLLMFriendliness(doc),
-            basic_content: checkBasicContent(siteText),
+            basic_content: checkBasicContent(doc),
             meta_tags: checkMetaTags(doc),
             cta_buttons: detectCTA(doc),
             faq_schema: detectFAQSchema(doc),
@@ -636,9 +636,53 @@ function checkLLMFriendliness(doc) {
     return { schema_detected: detected };
 }
 
-function checkBasicContent(siteText) {
-     const reviewKeywords = ['評價', '評論', '心得', '見證', 'testimonial', 'review'];
-     return { has_user_reviews: reviewKeywords.some(kw => siteText.toLowerCase().includes(kw)) };
+function checkBasicContent(doc) {
+    // 1. 結構化資料
+    const schemaScripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'));
+    let hasReviewSchema = false;
+    let hasAggregateRating = false;
+    schemaScripts.forEach(script => {
+        try {
+            const json = JSON.parse(script.textContent);
+            if (json['@type'] === 'Review' || (Array.isArray(json) && json.some(j => j['@type'] === 'Review'))) {
+                hasReviewSchema = true;
+            }
+            if (json['@type'] === 'AggregateRating' || (Array.isArray(json) && json.some(j => j['@type'] === 'AggregateRating'))) {
+                hasAggregateRating = true;
+            }
+        } catch (e) {}
+    });
+
+    // 2. 常見評價區塊
+    const reviewBlocks = doc.querySelectorAll(
+        '.review, .reviews, .testimonial, .testimonials, .comment, .comments, .rating, .ratings, #reviews, #testimonials, #comments, #ratings'
+    );
+    let hasReviewBlock = false;
+    let hasMultiReview = false;
+    let hasStarOrScore = false;
+    reviewBlocks.forEach(block => {
+        // 多條評價
+        const items = block.querySelectorAll('li, .review, .comment, .testimonial, .rating');
+        if (items.length >= 2) {
+            hasMultiReview = true;
+        }
+        // 星星或分數
+        if (/★|☆|[1-5]分|[1-5]星|rating|score|\d\.\d\/?5/.test(block.innerText)) {
+            hasStarOrScore = true;
+        }
+    });
+    hasReviewBlock = reviewBlocks.length > 0 && hasMultiReview && hasStarOrScore;
+
+    // 3. 關鍵字備援
+    const reviewKeywords = ['評價', '評論', '心得', 'review', 'testimonial', '星', '分'];
+    let hasReviewKeyword = false;
+    if (!hasReviewBlock) {
+        hasReviewKeyword = reviewKeywords.some(kw => doc.body.innerText.includes(kw));
+    }
+
+    return {
+        has_user_reviews: hasReviewSchema || hasAggregateRating || hasReviewBlock || hasReviewKeyword
+    };
 }
 
 // --- 下載功能 ---
