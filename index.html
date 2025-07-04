@@ -1,89 +1,42 @@
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-    body {
-        font-family: 'Inter', 'Noto Sans TC', sans-serif;
-    }
-    .card {
-        background: linear-gradient(135deg, #232946 0%, #16161a 100%);
-        border-radius: 0.75rem;
-        box-shadow: 0 8px 32px 0 rgba(31,41,55,0.25);
-        border: 1px solid #374151;
-        padding: 1.5rem;
-        transition: box-shadow 0.3s;
-    }
-    .card:hover {
-        box-shadow: 0 12px 48px 0 rgba(99,102,241,0.25);
-    }
-    .loader {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #4F46E5;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    .status-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        flex-shrink: 0;
-    }
-    .priority-high { background-color: #991B1B; color: #FEE2E2; }
-    .priority-medium { background-color: #9A3412; color: #FFEDD5; }
-    .priority-low { background-color: #166534; color: #DCFCE7; }
-    .journey-tofu { border-color: #38BDF8; color: #38BDF8; }
-    .journey-mofu { border-color: #FBBF24; color: #FBBF24; }
-    .journey-bofu { border-color: #34D399; color: #34D399; }
-    .journey-post { border-color: #A78BFA; color: #A78BFA; }
-    .journey-all { border-color: #F472B6; color: #F472B6; }
-    /* badge 美化 */
-    .badge {
-        display: inline-block;
-        border-radius: 9999px;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-right: 0.5rem;
-        margin-bottom: 0.25rem;
-    }
-    .badge-cta { background: #059669; color: #fff; }
-    .badge-schema { background: #0ea5e9; color: #fff; }
-    .badge-faq { background: #a21caf; color: #fff; }
-    .badge-journey { background: #f59e42; color: #fff; }
-    /* 表格圓角與陰影 */
-    .pretty-table {
-        border-radius: 0.75rem;
-        overflow: hidden;
-        box-shadow: 0 4px 24px 0 rgba(31,41,55,0.15);
-    }
-    /* 歷史面板動畫 */
-    #historyPanel {
-        transition: max-height 0.3s, opacity 0.3s;
-        max-height: 500px;
-        opacity: 1;
-    }
-    #historyPanel.hidden {
-        max-height: 0;
-        opacity: 0;
-    }
-    /* 錯誤訊息美化 */
-    #error {
-        background: rgba(185,28,28,0.7);
-        color: #fee2e2;
-        border-left: 4px solid #ef4444;
-    }
-</style>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網站 AI 就緒度與技術健康度檢測工具 v4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans TC', sans-serif; }
+        .card { background: linear-gradient(135deg, #232946 0%, #16161a 100%); border-radius: 0.75rem; box-shadow: 0 8px 32px 0 rgba(31,41,55,0.25); border: 1px solid #374151; padding: 1.5rem; transition: box-shadow 0.3s; }
+        .card:hover { box-shadow: 0 12px 48px 0 rgba(99,102,241,0.25); }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4F46E5; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-icon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+        .priority-high { background-color: #991B1B; color: #FEE2E2; }
+        .priority-medium { background-color: #9A3412; color: #FFEDD5; }
+        .priority-low { background-color: #166534; color: #DCFCE7; }
+        .journey-tofu { border-color: #38BDF8; color: #38BDF8; }
+        .journey-mofu { border-color: #FBBF24; color: #FBBF24; }
+        .journey-bofu { border-color: #34D399; color: #34D399; }
+        .journey-post { border-color: #A78BFA; color: #A78BFA; }
+        .journey-all { border-color: #F472B6; color: #F472B6; }
+        .badge { display: inline-block; border-radius: 9999px; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; margin-right: 0.5rem; margin-bottom: 0.25rem; }
+        .badge-cta { background: #059669; color: #fff; }
+        .badge-schema { background: #0ea5e9; color: #fff; }
+        .badge-faq { background: #a21caf; color: #fff; }
+        .badge-journey { background: #f59e42; color: #fff; }
+        .pretty-table { border-radius: 0.75rem; overflow: hidden; box-shadow: 0 4px 24px 0 rgba(31,41,55,0.15); }
+        #historyPanel { transition: max-height 0.3s, opacity 0.3s; max-height: 500px; opacity: 1; }
+        #historyPanel.hidden { max-height: 0; opacity: 0; }
+        #error { background: rgba(185,28,28,0.7); color: #fee2e2; border-left: 4px solid #ef4444; }
+    </style>
+</head>
 <body class="bg-gray-900 text-gray-200">
-
 <div id="app" class="container mx-auto p-4 md:p-8">
     <header class="text-center mb-8">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-            網站 AI 就緒度檢測工具 v4
-        </h1>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">網站 AI 就緒度檢測工具 v4</h1>
         <p class="text-gray-400 text-lg">整合消費者旅程分析，評估網站在 LLM 世代的技術與內容策略健康度。</p>
     </header>
     <div class="max-w-3xl mx-auto mb-6">
@@ -114,9 +67,7 @@
                 </select>
             </div>
          </div>
-         <button id="analyzeBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">
-            開始分析
-        </button>
+         <button id="analyzeBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all duration-300">開始分析</button>
         <p class="text-xs text-gray-400 mt-2 text-center">如遇自動抓取失敗，請改用下方「手動貼原始碼」功能</p>
     </div>
     <div id="loading" class="hidden text-center my-8">
@@ -132,11 +83,10 @@
             <h3 class="text-lg font-semibold text-amber-400 mb-2 flex items-center"><svg class="w-5 h-5 text-amber-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>備援方案：手動輸入</h3>
             <p class="text-gray-400 text-sm mb-4">自動抓取失敗。請在目標網站頁面按右鍵，選擇「檢視網頁原始碼」，將全部內容複製並貼到下方文字區，然後點擊按鈕進行分析。</p>
             <textarea id="sourceCodeInput" class="w-full h-40 bg-gray-900 border border-gray-600 rounded-md p-3 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none shadow mb-2" placeholder="將網頁原始碼 (HTML) 貼在這裡..."></textarea>
-            <button id="analyzeSourceBtn" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors duration-300">
-                分析貼上的原始碼
-            </button>
+            <button id="analyzeSourceBtn" class="mt-4 w-full bg-gradient-to-r from-amber-500 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors duration-300">分析貼上的原始碼</button>
         </div>
     </div>
+    <!-- 分析結果區塊 -->
     <div id="results" class="hidden space-y-8">
         <!-- Row 1: Technical & Basic Health -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -145,51 +95,553 @@
                 <ul id="rootFilesCheck" class="space-y-3 text-gray-300"></ul>
             </div>
             <div class="card">
-<div id="results" class="hidden space-y-8">
-    <!-- Row 1: Technical & Basic Health -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="card">
-            <h2 class="text-xl font-bold mb-4 text-white">1. Root 檔案</h2>
-            <ul id="rootFilesCheck" class="space-y-3 text-gray-300"></ul>
+                <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>2. 架構與 LLM 友善度</h2>
+                <ul id="architectureCheck" class="space-y-3 text-gray-300"></ul>
+            </div>
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>3. 基礎內容信號</h2>
+                 <ul id="basicContentCheck" class="space-y-3 text-gray-300"></ul>
+            </div>
         </div>
-        <div class="card">
-            <h2 class="text-xl font-bold mb-4 text-white">2. 架構與 LLM 友善度</h2>
-            <ul id="architectureCheck" class="space-y-3 text-gray-300"></ul>
+        <!-- Row 2: Content-Journey Alignment -->
+        <div class="card col-span-1 lg:col-span-3">
+            <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-pink-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>4. 內容與消費者旅程對應分析</h2>
+            <div id="qaAnalysis" class="overflow-x-auto"></div>
         </div>
-        <div class="card">
-            <h2 class="text-xl font-bold mb-4 text-white">3. 基礎內容信號</h2>
-             <ul id="basicContentCheck" class="space-y-3 text-gray-300"></ul>
+        <!-- Row 3: AI Recommendations -->
+         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-indigo-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>5. AI 生成改善建議</h2>
+                <div id="recommendations" class="space-y-4"></div>
+            </div>
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>6. AI 消費者旅程覆蓋率洞察</h2>
+                <div id="journeyAnalysisReport" class="space-y-3 text-gray-300"></div>
+            </div>
+        </div>
+        <!-- 下載報告按鈕 -->
+        <div class="flex flex-wrap gap-4 mt-4 justify-center">
+          <button id="downloadJsonBtn" class="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white px-4 py-2 rounded-full shadow transition-all duration-200 font-semibold">下載 JSON</button>
+          <button id="downloadCsvBtn" class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 py-2 rounded-full shadow transition-all duration-200 font-semibold">下載 CSV</button>
+          <button id="downloadPdfBtn" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-4 py-2 rounded-full shadow transition-all duration-200 font-semibold">下載 PDF</button>
         </div>
     </div>
-    <!-- Row 2: Content-Journey Alignment -->
-    <div class="card col-span-1 lg:col-span-3">
-        <h2 class="text-xl font-bold mb-4 text-white">4. 內容與消費者旅程對應分析</h2>
-        <div id="qaAnalysis" class="overflow-x-auto"></div>
-    </div>
-    <!-- Row 3: AI Recommendations -->
-     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="card">
-            <h2 class="text-xl font-bold mb-4 text-white">5. AI 生成改善建議</h2>
-            <div id="recommendations" class="space-y-4"></div>
-        </div>
-        <div class="card">
-            <h2 class="text-xl font-bold mb-4 text-white">6. AI 消費者旅程覆蓋率洞察</h2>
-            <div id="journeyAnalysisReport" class="space-y-3 text-gray-300"></div>
-        </div>
-    </div>
-    <!-- 下載報告按鈕 -->
-    <div class="flex gap-4 mt-4">
-      <button id="downloadJsonBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">下載 JSON</button>
-      <button id="downloadCsvBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">下載 CSV</button>
-      <button id="downloadPdfBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">下載 PDF</button>
-    </div>
+    <!-- 歷史紀錄按鈕與面板 -->
+    <button id="showHistoryBtn" class="text-xs text-indigo-400 underline mt-2 hover:text-indigo-200 transition">查看分析歷史紀錄</button>
+    <div id="historyPanel" class="hidden bg-gray-800 border border-gray-700 rounded p-4 mt-2 transition-all duration-300 overflow-y-auto"></div>
 </div>
-<!-- 歷史紀錄按鈕與面板 -->
-<button id="showHistoryBtn" class="text-xs text-indigo-400 underline mt-2">查看分析歷史紀錄</button>
-<div id="historyPanel" class="hidden bg-gray-800 border border-gray-700 rounded p-4 mt-2"></div>
+
+<!-- 完整的 JavaScript -->
 <script>
+console.log('JS loaded!');
+
+// --- Element References ---
+const apiKeyInput = document.getElementById('apiKeyInput');
+const urlInput = document.getElementById('urlInput');
+const productInput = document.getElementById('productInput');
+const industrySelect = document.getElementById('industrySelect');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const loading = document.getElementById('loading');
+const loadingStatus = document.getElementById('loadingStatus');
+const errorContainer = document.getElementById('errorContainer');
+const error = document.getElementById('error');
+const errorMessage = document.getElementById('errorMessage');
+const fallback = document.getElementById('fallback');
+const sourceCodeInput = document.getElementById('sourceCodeInput');
+const analyzeSourceBtn = document.getElementById('analyzeSourceBtn');
+const results = document.getElementById('results');
+
+// --- API Key localStorage 儲存 ---
+// 載入時自動填入已儲存的 API Key
+apiKeyInput.value = localStorage.getItem('geminiApiKey') || '';
+// 輸入時自動儲存
+apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('geminiApiKey', apiKeyInput.value);
+});
+
+// --- Data Definitions ---
+const QUESTION_CLASSIFIER_RULES = {
+    "使用教學/售後服務型": { keywords: ["如何設定", "怎麼用", "教學", "操作", "安裝", "配對", "故障", "沒反應", "維修", "保固", "客服", "退貨", "說明書", "手冊"], journey: "售後 (Post-Purchase)", css: "journey-post" },
+    "比較型": { keywords: ["比較", "vs", "對比", "哪個好", "差異", "優缺點", "評比", "和", "怎麼選", "差別"], journey: "考慮期 (MOFU)", css: "journey-mofu" },
+    "價格型": { keywords: ["多少錢", "價格", "售價", "報價", "預算", "優惠", "折扣", "特價", "CP值", "性價比"], journey: "決策期 (BOFU)", css: "journey-bofu" },
+    "評價/口碑型": { keywords: ["評價", "心得", "評論", "好用嗎", "值得買", "推薦文", "開箱", "災情", "缺點", "PTT", "Dcard", "Mobile01"], journey: "考慮期 (MOFU)", css: "journey-mofu" },
+    "問題解決型/需求導向型": { keywords: ["如何解決", "怎麼辦", "太耗電", "過熱", "延遲", "空間不足", "很慢", "改善", "提升"], journey: "認知期 (TOFU)", css: "journey-tofu" },
+    "推薦型": { keywords: ["推薦", "建議", "求", "找一款", "適合", "送禮", "新手用", "長輩用"], journey: "決策期 (BOFU)", css: "journey-bofu" },
+    "功能/規格型": { keywords: ["規格", "功能", "效能", "續航力", "處理器", "記憶體", "容量", "防水", "支援"], journey: "考慮期 (MOFU)", css: "journey-mofu" },
+    "品牌導向型": { keywords: ["官網", "門市", "歷史", "創辦人", "是哪一國"], journey: "全階段 (All)", css: "journey-all" },
+    "資訊型": { keywords: ["什麼是", "為什麼", "如何運作", "原理", "定義", "介紹", "懶人包"], journey: "認知期 (TOFU)", css: "journey-tofu" }
+};
+
 let lastReport = null; // 全域暫存
-// 下載檔案工具
+
+// --- Main Logic ---
+analyzeBtn.addEventListener('click', async () => {
+    console.log('analyzeBtn clicked!');
+    const url = urlInput.value.trim();
+    if (!url) {
+        showError('請務必輸入網站 URL。');
+        return;
+    }
+    try {
+        const sourceProvider = () => fetchAndParseUrl(url);
+        await runAnalysis(sourceProvider);
+    } catch (err) {
+        showFallbackInput(err.message);
+    }
+});
+
+analyzeSourceBtn.addEventListener('click', async () => {
+    console.log('analyzeSourceBtn clicked!');
+    const sourceCode = sourceCodeInput.value.trim();
+    const url = urlInput.value.trim();
+    if (!sourceCode) {
+        showError('請貼上網頁原始碼。', false);
+        return;
+    }
+    if (!url) {
+        showError('請同時提供原始碼對應的網站 URL。', false);
+        return;
+    }
+    try {
+        const sourceProvider = () => parseManualSource(sourceCode, url);
+        await runAnalysis(sourceProvider);
+    } catch(err) {
+         showError(err.message, false);
+    }
+});
+
+async function runAnalysis(sourceProvider) {
+    const product = productInput.value.trim();
+    if (!product) {
+        showError('請務必輸入「主要產品/服務」。');
+        return;
+    }
+
+    const report = {};
+    try {
+        showLoading('步驟 1/5: 取得與解析網站內容...');
+        const { doc, siteText, validatedUrl } = await sourceProvider();
+
+        showLoading('步驟 2/5: 執行技術健康度檢測...');
+        report.technical_health = {
+            root_files: await checkRootFiles(validatedUrl.origin),
+            architecture: checkArchitecture(validatedUrl, doc),
+            llm_friendliness: checkLLMFriendliness(doc),
+            basic_content: checkBasicContent(siteText),
+            meta_tags: checkMetaTags(doc),
+            cta_buttons: detectCTA(doc),
+            faq_schema: detectFAQSchema(doc),
+            schema_types: detectAllSchemaTypes(doc)
+        };
+
+        showLoading('步驟 3/5: 生成並分類潛在使用者問題...');
+        const classifiedQuestions = await generateAndClassifyQuestions(product);
+        
+        showLoading('步驟 4/5: 分析網站內容與問題對應度...');
+        report.content_alignment = await analyzeContentCoverage(siteText, classifiedQuestions);
+
+        showLoading('步驟 5/5: 生成 AI 洞察與改善建議...');
+        report.ai_insights = await generateAiInsights(report);
+
+        displayReport(report);
+
+    } catch (err) {
+        console.error('分析過程中發生錯誤:', err);
+        showError(`分析失敗: ${err.message}`);
+    }
+}
+
+// --- Core Functions ---
+async function fetchWithProxyFallback(url) {
+    const proxies = [
+        { prefix: 'https://api.allorigins.win/raw?url=', needsEncoding: true },
+        { prefix: 'https://thingproxy.freeboard.io/fetch/', needsEncoding: false }
+    ];
+
+    for (const proxy of proxies) {
+        try {
+            const targetUrl = proxy.needsEncoding ? encodeURIComponent(url) : url;
+            const fetchUrl = `${proxy.prefix}${targetUrl}`;
+            
+            const response = await fetch(fetchUrl, { signal: AbortSignal.timeout(8000) });
+            if (response.ok) {
+                console.log(`Successfully fetched using proxy: ${proxy.prefix}`);
+                return response;
+            }
+             console.warn(`Proxy ${proxy.prefix} returned non-ok status: ${response.status}`);
+        } catch (e) {
+            console.warn(`Proxy ${proxy.prefix} failed for ${url}:`, e);
+        }
+    }
+    return null;
+}
+
+async function fetchAndParseUrl(url) {
+    const response = await fetchWithProxyFallback(url);
+    if (response) {
+        return parseHtmlResponse(response, url);
+    }
+    throw new Error(`無法自動抓取網站內容。目標網站可能設有強力的防爬蟲機制，或所有代理伺服器暫時無法連線。`);
+}
+
+async function parseManualSource(html, url) {
+    if (!html.toLowerCase().includes('<html')) {
+        throw new Error('您貼上的內容似乎不是有效的 HTML 原始碼。');
+    }
+    return parseHtmlResponse({ text: () => Promise.resolve(html) }, url);
+}
+
+async function parseHtmlResponse(response, url) {
+    let validatedUrl;
+    try {
+        validatedUrl = new URL(url);
+    } catch (_) {
+        throw new Error('提供的 URL 格式不正確。');
+    }
+    const html = await response.text();
+    if (!html) {
+       throw new Error('內容為空，無法分析。');
+    }
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    if (!doc.body || !doc.body.innerText) {
+        throw new Error('無法從內容中解析出有效的 HTML 結構。');
+    }
+    const siteText = doc.body.innerText;
+    return { doc, siteText, validatedUrl };
+}
+
+// --- 偵測功能 ---
+function checkMetaTags(doc) {
+    const metas = Array.from(doc.querySelectorAll('meta'));
+    const ogTags = {};
+    const metaTags = {};
+    metas.forEach(meta => {
+        if (meta.getAttribute('property') && meta.getAttribute('property').startsWith('og:')) {
+            ogTags[meta.getAttribute('property')] = meta.getAttribute('content') || '';
+        }
+        if (meta.getAttribute('name')) {
+            const name = meta.getAttribute('name').toLowerCase();
+            if (["description", "keywords", "author"].includes(name)) {
+                metaTags[name] = meta.getAttribute('content') || '';
+            }
+        }
+    });
+    return { ogTags, metaTags };
+}
+
+function detectCTA(doc) {
+    const ctaKeywords = ['立即購買', '馬上購買', '聯絡我們', '免費試用', '加入購物車', '註冊', '訂閱', '了解更多', '預約', '開始體驗'];
+    const ctaElements = Array.from(doc.querySelectorAll('a, button, input[type="button"], input[type="submit"]'));
+    const foundCTAs = [];
+    ctaElements.forEach(el => {
+        const text = (el.innerText || el.value || '').trim();
+        if (ctaKeywords.some(kw => text.includes(kw))) {
+            foundCTAs.push(text);
+        }
+    });
+    return foundCTAs;
+}
+
+function detectFAQSchema(doc) {
+    const schemaScripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'));
+    const faqs = [];
+    schemaScripts.forEach(script => {
+        try {
+            const json = JSON.parse(script.textContent);
+            if (json['@type'] === 'FAQPage' && Array.isArray(json.mainEntity)) {
+                json.mainEntity.forEach(item => {
+                    if (item['@type'] === 'Question' && item.name && item.acceptedAnswer && item.acceptedAnswer.text) {
+                        faqs.push({ question: item.name, answer: item.acceptedAnswer.text });
+                    }
+                });
+            }
+        } catch (e) {}
+    });
+    return faqs;
+}
+
+function detectAllSchemaTypes(doc) {
+    const schemaScripts = Array.from(doc.querySelectorAll('script[type="application/ld+json"]'));
+    const types = new Set();
+    schemaScripts.forEach(script => {
+        try {
+            const json = JSON.parse(script.textContent);
+            if (Array.isArray(json)) {
+                json.forEach(item => {
+                    if (item['@type']) types.add(item['@type']);
+                });
+            } else if (json['@type']) {
+                types.add(json['@type']);
+            }
+        } catch (e) {}
+    });
+    return Array.from(types);
+}
+
+async function generateAndClassifyQuestions(product) {
+    const industry = industrySelect.value;
+    const prompt = `請你扮演一位市場研究專家。針對「${product}」這個產品（屬於「${industry || '通用'}」行業），生成一個包含 5 個消費者在購買前、中、後最常詢問的「使用情境」問題的 JSON 陣列。問題應具體、口語化且多樣。範例: ["問題一", "問題二", ...]`;
+    const questions = await callGemini(prompt, 'json');
+    
+    return questions.map(q => {
+        let category = '資訊型';
+        for (const cat in QUESTION_CLASSIFIER_RULES) {
+            if (QUESTION_CLASSIFIER_RULES[cat].keywords.some(kw => q.includes(kw))) {
+                category = cat;
+                break;
+            }
+        }
+        return { question: q, category };
+    });
+}
+
+async function analyzeContentCoverage(siteText, classifiedQuestions) {
+    const prompt = `請你扮演一位內容分析師。我會提供你一段網站內文和一個已分類的問題列表。請你判斷這段內文是否「直接且清楚地」回答了列表中的每一個問題。
+網站內文（為保護隱私，長度已截斷）: "${siteText.substring(0, 4000)}..."
+問題列表: ${JSON.stringify(classifiedQuestions.map(q => q.question))}
+
+請回傳一個 JSON 物件，key 是問題的字串，value 是布林值 (true/false)，代表該問題是否被回答。
+範例: { "問題一": true, "問題二": false, ... }`;
+    const coverageResults = await callGemini(prompt, 'json');
+    return classifiedQuestions.map(q => ({
+        ...q,
+        isCovered: coverageResults[q.question] || false
+    }));
+}
+
+async function generateAiInsights(report) {
+    const recommendationsPrompt = `請你扮演一位資深的網站 AI 就緒度技術顧問。這是一份網站的健康度檢測報告數據: ${JSON.stringify(report.technical_health, null, 2)}。請根據這份報告，生成一個包含 3 個最關鍵改善建議的 JSON 陣列。每個建議都是一個物件，包含 "issue", "recommendation", "priority" ("High", "Medium", "Low")。範例: [{"issue": "AI Bot Blocked", "recommendation": "請修改...", "priority": "High"}]`;
+    
+    const journeyPrompt = `請扮演一位數位行銷策略師。這是一份網站內容針對「消費者購物旅程」的覆蓋率分析報告: ${JSON.stringify(report.content_alignment, null, 2)}。
+報告中的 "category" 代表問題類型，"isCovered" 代表網站內容是否回答了該問題。
+請根據這份數據，撰寫一段 200 字左右的策略洞察分析，點出該網站在消費者旅程的哪個階段（認知期 TOFU, 考慮期 MOFU, 決策期 BOFU, 售後 Post-Purchase）內容做得最好，哪個階段有明顯的內容斷層或不足。最後，提供一個具體的內容策略建議。請以 JSON 物件格式回傳，包含一個 "analysis" key，其 value 為分析報告字串。`;
+
+    const [recommendations, journeyAnalysis] = await Promise.all([
+        callGemini(recommendationsPrompt, 'json'),
+        callGemini(journeyPrompt, 'json')
+    ]);
+    return { recommendations, journeyAnalysis: journeyAnalysis.analysis };
+}
+
+// --- Display Functions ---
+function displayReport(report) {
+    lastReport = report;
+    displayTechnicalHealth(report.technical_health);
+    displayContentAlignment(report.content_alignment);
+    displayAiInsights(report.ai_insights);
+    showResults();
+    saveHistory(urlInput.value.trim(), productInput.value.trim(), report);
+}
+
+function displayTechnicalHealth(tech) {
+    const rootFilesEl = document.getElementById('rootFilesCheck');
+    rootFilesEl.innerHTML = `
+        <li class="flex items-center">${createStatusElement(tech.root_files.has_robots_txt, `存在 robots.txt`)}</li>
+        ${tech.root_files.has_robots_txt ? `<li class="flex items-center ml-4">${createStatusElement(tech.root_files.robots_allows_ai_bots, `允許 AI 爬蟲`)}</li>` : ''}
+        <li class="flex items-center">${createStatusElement(tech.root_files.has_sitemap_xml, '存在 sitemap.xml')}</li>
+    `;
+    const archEl = document.getElementById('architectureCheck');
+    archEl.innerHTML = `
+        <li class="flex items-center">${createStatusElement(tech.architecture.uses_https, '使用 HTTPS 安全連線')}</li>
+        <li class="flex items-center">${createStatusElement(tech.architecture.has_h1, '頁面包含主要標題 (H1)')}</li>
+        <li class="flex items-center">${createStatusElement(tech.llm_friendliness.schema_detected.length > 0, `結構化資料: ${tech.llm_friendliness.schema_detected.join(', ') || '無'}`)}</li>
+    `;
+    
+    // 新增 Meta 標籤顯示
+    const metaEl = document.createElement('div');
+    metaEl.innerHTML = `
+      <h3 class="text-sm font-semibold text-indigo-400 mt-4 mb-2">Meta 標籤</h3>
+      <ul>
+        ${Object.entries(tech.meta_tags.ogTags).map(([k,v]) => `<li><span class="font-bold">${k}:</span> ${v}</li>`).join('')}
+        ${Object.entries(tech.meta_tags.metaTags).map(([k,v]) => `<li><span class="font-bold">${k}:</span> ${v}</li>`).join('')}
+      </ul>
+    `;
+    archEl.appendChild(metaEl);
+    
+    // 新增結構化資料 type 與 FAQ 顯示
+    const schemaEl = document.createElement('div');
+    schemaEl.innerHTML = `
+      <h3 class="text-sm font-semibold text-sky-400 mt-4 mb-2">結構化資料 Type</h3>
+      <div class="flex flex-wrap gap-2 mb-2">
+        ${tech.schema_types.map(type => `<span class="badge badge-schema">${type}</span>`).join('')}
+      </div>
+      ${tech.faq_schema.length > 0 ? `
+        <h4 class="text-xs font-bold mt-2 mb-1">FAQ 條目：</h4>
+        <ul>
+          ${tech.faq_schema.map(faq => `<li class="mb-1"><span class="font-bold">Q:</span> ${faq.question}<br><span class="font-bold">A:</span> ${faq.answer.substring(0, 40)}...</li>`).join('')}
+        </ul>
+      ` : ''}
+    `;
+    archEl.appendChild(schemaEl);
+    
+    const contentEl = document.getElementById('basicContentCheck');
+    contentEl.innerHTML = `
+         <li class="flex items-center">${createStatusElement(tech.basic_content.has_user_reviews, '偵測到使用者評價區塊')}</li>
+    `;
+    
+    // 新增 CTA 顯示
+    if (tech.cta_buttons && tech.cta_buttons.length > 0) {
+        const ctaEl = document.createElement('div');
+        ctaEl.innerHTML = `
+          <h3 class="text-sm font-semibold text-emerald-400 mt-4 mb-2">CTA 按鈕</h3>
+          <div class="flex flex-wrap gap-2">
+            ${tech.cta_buttons.map(txt => `<span class="badge badge-cta">${txt}</span>`).join('')}
+          </div>
+        `;
+        contentEl.appendChild(ctaEl);
+    }
+}
+
+function displayContentAlignment(alignment) {
+    const qaEl = document.getElementById('qaAnalysis');
+    let tableHtml = `<table class="w-full text-sm text-left text-gray-400 rounded-lg overflow-hidden shadow-lg pretty-table">
+        <thead class="text-xs text-gray-200 uppercase bg-indigo-900/80">
+            <tr>
+                <th scope="col" class="px-4 py-3">內容覆蓋度</th>
+                <th scope="col" class="px-4 py-3">AI 生成的潛在問題</th>
+                <th scope="col" class="px-4 py-3">問題類型</th>
+                <th scope="col" class="px-4 py-3">消費者旅程</th>
+            </tr>
+        </thead>
+        <tbody>`;
+    alignment.forEach(item => {
+        const rule = QUESTION_CLASSIFIER_RULES[item.category] || {};
+        tableHtml += `<tr class="border-b border-gray-700 hover:bg-gray-800/60 transition">
+            <td class="px-4 py-3">${createStatusElement(item.isCovered, '')}</td>
+            <td class="px-4 py-3 font-medium text-white">${item.question}</td>
+            <td class="px-4 py-3"><span class="badge badge-schema">${item.category}</span></td>
+            <td class="px-4 py-3"><span class="badge badge-journey border-2 ${rule.css || 'border-gray-500' } text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">${rule.journey || '未知'}</span></td>
+        </tr>`;
+    });
+    tableHtml += `</tbody></table>`;
+    qaEl.innerHTML = tableHtml;
+}
+
+function displayAiInsights(insights) {
+    const recEl = document.getElementById('recommendations');
+    recEl.innerHTML = '';
+    insights.recommendations.forEach(rec => {
+        const priorityClass = `priority-${rec.priority.toLowerCase()}`;
+        recEl.innerHTML += `
+            <div class="border-l-4 border-indigo-500 p-4 bg-gray-800 rounded-r-lg">
+                <div class="flex items-center justify-between mb-2">
+                   <h3 class="font-semibold text-white">${rec.issue}</h3>
+                   <span class="text-xs font-medium px-2.5 py-0.5 rounded-full ${priorityClass}">${rec.priority}</span>
+                </div>
+                <p class="text-gray-300 text-sm">${rec.recommendation}</p>
+            </div>`;
+    });
+
+    const journeyEl = document.getElementById('journeyAnalysisReport');
+    journeyEl.innerHTML = `<p class="whitespace-pre-line leading-relaxed">${insights.journeyAnalysis}</p>`;
+}
+
+// --- Utility & Helper Functions ---
+const showLoading = (message) => {
+    results.classList.add('hidden');
+    errorContainer.classList.add('hidden');
+    loading.classList.remove('hidden');
+    loadingStatus.textContent = message;
+};
+
+const showError = (message, showFallbackOption = false) => {
+    loading.classList.add('hidden');
+    errorMessage.textContent = message;
+    error.classList.remove('hidden');
+    if(showFallbackOption) {
+         fallback.classList.remove('hidden');
+    } else {
+         fallback.classList.add('hidden');
+    }
+    errorContainer.classList.remove('hidden');
+};
+
+const showFallbackInput = (message) => {
+    showError(message, true);
+};
+
+const showResults = () => {
+    loading.classList.add('hidden');
+    errorContainer.classList.add('hidden');
+    results.classList.remove('hidden');
+};
+
+const createStatusElement = (isSuccess, text) => {
+    const icon = isSuccess 
+        ? `<svg class="status-icon text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+        : `<svg class="status-icon text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+    return `${icon}<span class="ml-2">${text}</span>`;
+};
+
+async function callGemini(prompt, responseType = 'json') {
+    const userApiKey = apiKeyInput.value.trim();
+    const finalApiKey = userApiKey || "";
+    const fullApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${finalApiKey}`;
+    const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, topP: 0.9 } };
+    if (responseType === 'json') payload.generationConfig.responseMimeType = "application/json";
+    const response = await fetch(fullApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`Gemini API 請求失敗 (${response.status})。請檢查 API 金鑰權限或額度。`);
+    }
+    const data = await response.json();
+    try {
+        const rawText = data.candidates[0].content.parts[0].text;
+        return responseType === 'json' ? JSON.parse(rawText) : rawText;
+    } catch (e) {
+        throw new Error("無法解析 AI 回應的格式，請稍後再試。");
+    }
+}
+
+async function checkRootFiles(origin) { 
+    const result = {};
+    
+    const robotsResponse = await fetchWithProxyFallback(`${origin}/robots.txt`);
+    if (robotsResponse && robotsResponse.ok) {
+        result.has_robots_txt = true;
+        const robotsTxt = await robotsResponse.text();
+        const gptBotBlocked = /User-agent: GPTBot\s*Disallow: \//i.test(robotsTxt);
+        const googleExtendedBlocked = /User-agent: Google-Extended\s*Disallow: \//i.test(robotsTxt);
+        result.robots_allows_ai_bots = !gptBotBlocked && !googleExtendedBlocked;
+    } else {
+        result.has_robots_txt = false;
+        result.robots_allows_ai_bots = true;
+    }
+
+    const sitemapResponse = await fetchWithProxyFallback(`${origin}/sitemap.xml`);
+    result.has_sitemap_xml = (sitemapResponse && sitemapResponse.ok);
+
+    return result;
+}
+
+function checkArchitecture(url, doc) { 
+    return { 
+        uses_https: url.protocol === 'https:', 
+        has_h1: !!doc.querySelector('h1') 
+    }; 
+}
+
+function checkLLMFriendliness(doc) {
+    const schemaScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+    const detected = [];
+    schemaScripts.forEach(script => { 
+        try { 
+            const json = JSON.parse(script.textContent); 
+            if (json['@type']) { 
+                detected.push(json['@type']); 
+            } 
+        } catch (e) {} 
+    });
+    return { schema_detected: detected };
+}
+
+function checkBasicContent(siteText) {
+     const reviewKeywords = ['評價', '評論', '心得', '見證', 'testimonial', 'review'];
+     return { has_user_reviews: reviewKeywords.some(kw => siteText.toLowerCase().includes(kw)) };
+}
+
+// --- 下載功能 ---
 function downloadFile(filename, content, mime) {
     const blob = new Blob([content], {type: mime});
     const url = URL.createObjectURL(blob);
@@ -198,9 +650,11 @@ function downloadFile(filename, content, mime) {
     document.body.appendChild(a); a.click();
     setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
 }
+
 document.getElementById('downloadJsonBtn').onclick = () => {
     if (lastReport) downloadFile('report.json', JSON.stringify(lastReport, null, 2), 'application/json');
 };
+
 document.getElementById('downloadCsvBtn').onclick = () => {
     if (!lastReport) return;
     const rows = [['問題', '類型', '旅程', '有覆蓋']];
@@ -210,12 +664,14 @@ document.getElementById('downloadCsvBtn').onclick = () => {
     const csv = rows.map(r => r.map(x => `"${(x||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
     downloadFile('report.csv', csv, 'text/csv');
 };
+
 document.getElementById('downloadPdfBtn').onclick = () => {
     if (!lastReport) return;
     const reportEl = document.getElementById('results');
     html2pdf().from(reportEl).set({margin:1, filename:'report.pdf', html2canvas:{scale:2}}).save();
 };
-// 歷史紀錄儲存與載入
+
+// --- 歷史紀錄功能 ---
 function saveHistory(url, product, report) {
     const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]');
     history.unshift({
@@ -229,6 +685,7 @@ function saveHistory(url, product, report) {
     });
     localStorage.setItem('analysisHistory', JSON.stringify(history.slice(0, 20)));
 }
+
 document.getElementById('showHistoryBtn').onclick = function() {
     const panel = document.getElementById('historyPanel');
     const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]');
@@ -251,18 +708,15 @@ document.getElementById('showHistoryBtn').onclick = function() {
     `).join('');
     panel.classList.remove('hidden');
 };
+
 window.loadHistory = function(idx) {
     const history = JSON.parse(localStorage.getItem('analysisHistory') || '[]');
     if (history[idx]) {
         displayReport(history[idx].summary);
     }
 };
-function displayReport(report) {
-    lastReport = report;
-    displayTechnicalHealth(report.technical_health);
-    displayContentAlignment(report.content_alignment);
-    displayAiInsights(report.ai_insights);
-    showResults();
-    saveHistory(urlInput.value.trim(), productInput.value.trim(), report);
-}
-</script> 
+
+console.log('所有功能已載入完成！');
+</script>
+</body>
+</html> 
