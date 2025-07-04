@@ -58,12 +58,19 @@
                 <label for="industrySelect" class="block text-sm font-medium text-gray-400 mb-1">行業/產品類別 (選填)</label>
                 <select id="industrySelect" class="w-full bg-gray-700 border border-gray-600 text-white rounded-md p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow">
                     <option value="">-- 請選擇 --</option>
+                    <option value="科技">科技</option>
+                    <option value="金融">金融</option>
+                    <option value="醫療">醫療</option>
+                    <option value="零售">零售</option>
+                    <option value="教育">教育</option>
+                    <option value="製造">製造</option>
+                    <option value="媒體">媒體</option>
                     <option value="消費性電子產品">消費性電子產品</option>
                     <option value="美妝保養品">美妝保養品</option>
                     <option value="服飾配件">服飾配件</option>
                     <option value="旅遊票券服務">旅遊票券服務</option>
                     <option value="軟體即服務 (SaaS)">軟體即服務 (SaaS)</option>
-                    <option value="金融理財服務">金融理財服務</option>
+                    <option value="其他">其他</option>
                 </select>
             </div>
          </div>
@@ -174,6 +181,127 @@ const QUESTION_CLASSIFIER_RULES = {
 
 let lastReport = null; // 全域暫存
 
+// --- 媒體來源資料（人工可編輯） ---
+const industryMediaSources = {
+  "科技": [
+    { name: "TechCrunch", type: "新聞", url: "techcrunch.com", weight: 10 },
+    { name: "VentureBeat", type: "新聞", url: "venturebeat.com", weight: 8 },
+    { name: "Facebook", type: "社群", url: "facebook.com", weight: 7 },
+    { name: "PTT", type: "論壇", url: "ptt.cc", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "金融": [
+    { name: "Bloomberg", type: "新聞", url: "bloomberg.com", weight: 10 },
+    { name: "鉅亨網", type: "新聞", url: "cnyes.com", weight: 8 },
+    { name: "LinkedIn", type: "社群", url: "linkedin.com", weight: 7 },
+    { name: "Dcard", type: "論壇", url: "dcard.tw", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "醫療": [
+    { name: "健康醫療網", type: "新聞", url: "healthnews.com.tw", weight: 10 },
+    { name: "天下雜誌", type: "新聞", url: "cw.com.tw", weight: 8 },
+    { name: "Facebook", type: "社群", url: "facebook.com", weight: 7 },
+    { name: "PTT", type: "論壇", url: "ptt.cc", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "零售": [
+    { name: "經濟日報", type: "新聞", url: "money.udn.com", weight: 10 },
+    { name: "商業周刊", type: "新聞", url: "businessweekly.com.tw", weight: 8 },
+    { name: "Instagram", type: "社群", url: "instagram.com", weight: 7 },
+    { name: "Dcard", type: "論壇", url: "dcard.tw", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "教育": [
+    { name: "親子天下", type: "新聞", url: "cw.com.tw", weight: 10 },
+    { name: "天下雜誌", type: "新聞", url: "cw.com.tw", weight: 8 },
+    { name: "Facebook", type: "社群", url: "facebook.com", weight: 7 },
+    { name: "PTT", type: "論壇", url: "ptt.cc", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "製造": [
+    { name: "工商時報", type: "新聞", url: "ctee.com.tw", weight: 10 },
+    { name: "經濟日報", type: "新聞", url: "money.udn.com", weight: 8 },
+    { name: "LinkedIn", type: "社群", url: "linkedin.com", weight: 7 },
+    { name: "PTT", type: "論壇", url: "ptt.cc", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "媒體": [
+    { name: "聯合報", type: "新聞", url: "udn.com", weight: 10 },
+    { name: "中央社", type: "新聞", url: "cna.com.tw", weight: 8 },
+    { name: "Facebook", type: "社群", url: "facebook.com", weight: 7 },
+    { name: "Dcard", type: "論壇", url: "dcard.tw", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ],
+  "其他": [
+    { name: "Yahoo奇摩", type: "新聞", url: "tw.yahoo.com", weight: 10 },
+    { name: "Google新聞", type: "新聞", url: "news.google.com", weight: 8 },
+    { name: "Facebook", type: "社群", url: "facebook.com", weight: 7 },
+    { name: "Dcard", type: "論壇", url: "dcard.tw", weight: 6 },
+    { name: "YouTube", type: "影音", url: "youtube.com", weight: 7 },
+    { name: "Wikipedia", type: "Wiki", url: "wikipedia.org", weight: 5 }
+  ]
+};
+
+// --- 媒體權重分析與覆蓋分數邏輯 ---
+function analyzeMediaCoverage(siteHtml, industry) {
+  const sources = industryMediaSources[industry] || industryMediaSources["其他"];
+  let covered = [];
+  let uncovered = [];
+  let coveredScore = 0;
+  let totalScore = sources.reduce((sum, s) => sum + s.weight, 0);
+  sources.forEach(src => {
+    if (siteHtml.includes(src.url) || siteHtml.includes(src.name)) {
+      covered.push(src);
+      coveredScore += src.weight;
+    } else {
+      uncovered.push(src);
+    }
+  });
+  const coverageScore = Math.round((coveredScore / totalScore) * 100);
+  return { covered, uncovered, coverageScore, totalScore };
+}
+
+// --- 顯示媒體分析結果 ---
+function displayMediaCoverage(result) {
+  // 取得顯示區塊
+  let mediaSection = document.getElementById('mediaCoverageSection');
+  if (!mediaSection) {
+    // 若不存在則建立
+    const resultsDiv = document.getElementById('results');
+    mediaSection = document.createElement('div');
+    mediaSection.id = 'mediaCoverageSection';
+    mediaSection.className = 'card mt-6';
+    resultsDiv.appendChild(mediaSection);
+  }
+  mediaSection.innerHTML = `
+    <h2 class="text-xl font-bold mb-4 text-white flex items-center"><svg class="w-5 h-5 text-pink-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path></svg>媒體權重分析</h2>
+    <div class="mb-2">
+      <span class="text-lg font-bold bg-blue-200/30 text-blue-400 px-2 py-1 rounded">媒體覆蓋分數</span>
+      <span class="text-3xl font-extrabold text-blue-200 ml-2">${result.coverageScore}/100</span>
+    </div>
+    <div class="mb-2">
+      <span class="text-lg font-bold bg-green-200/30 text-green-400 px-2 py-1 rounded">📰 已覆蓋媒體</span>
+      <ul class="list-disc ml-6 mt-1">
+        ${result.covered.map(src => `<li><span class="font-bold">${src.name}</span> <span class="text-xs text-gray-400">(${src.type})</span></li>`).join('') || '<li class="text-gray-400">無</li>'}
+      </ul>
+    </div>
+    <div class="mb-2">
+      <span class="text-lg font-bold bg-red-200/30 text-red-400 px-2 py-1 rounded">未覆蓋高權重媒體</span>
+      <ul class="list-disc ml-6 mt-1">
+        ${result.uncovered.map(src => `<li><span class="font-bold">${src.name}</span> <span class="text-xs text-gray-400">(${src.type})</span></li>`).join('') || '<li class="text-gray-400">無</li>'}
+      </ul>
+    </div>
+    <div class="text-xs text-gray-400 mt-2">* 媒體來源與權重可於程式碼 industryMediaSources 物件中人工調整</div>
+  `;
+}
+
 // --- Main Logic ---
 analyzeBtn.addEventListener('click', async () => {
     console.log('analyzeBtn clicked!');
@@ -239,6 +367,10 @@ async function runAnalysis(sourceProvider) {
         
         showLoading('步驟 4/5: 分析網站內容與問題對應度...');
         report.content_alignment = await analyzeContentCoverage(siteText, classifiedQuestions);
+
+        // --- 媒體權重分析 ---
+        const industry = industrySelect.value || '其他';
+        report.media_coverage = analyzeMediaCoverage(siteText, industry);
 
         showLoading('步驟 5/5: 生成 AI 洞察與改善建議...');
         report.ai_insights = await generateAiInsights(report);
@@ -430,6 +562,7 @@ function displayReport(report) {
     displayTechnicalHealth(report.technical_health);
     displayContentAlignment(report.content_alignment);
     displayAiInsights(report.ai_insights);
+    if (report.media_coverage) displayMediaCoverage(report.media_coverage);
     showResults();
     saveHistory(urlInput.value.trim(), productInput.value.trim(), report);
 }
