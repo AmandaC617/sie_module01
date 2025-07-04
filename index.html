@@ -552,10 +552,10 @@ function displayMarketLeaders(leaders) {
         document.getElementById('results').appendChild(el);
     }
     if (!leaders || leaders.length === 0) {
-        el.innerHTML = '<h2 class="text-xl font-bold mb-4 text-white flex items-center">🏆 市場領導品牌比對</h2><p class="text-gray-400">查無資料或查詢失敗</p>';
+        el.innerHTML = '<h2 class="text-xl font-bold mb-4 text-white flex items-center">🏆 主要品牌比對</h2><p class="text-gray-400">查無資料或查詢失敗</p>';
         return;
     }
-    el.innerHTML = '<h2 class="text-xl font-bold mb-4 text-white flex items-center">🏆 市場領導品牌比對</h2>' +
+    el.innerHTML = '<h2 class="text-xl font-bold mb-4 text-white flex items-center">🏆 主要品牌比對</h2>' +
         '<ul class="space-y-2">' +
         leaders.map(l => `<li><span class="font-bold text-emerald-400">${l.brand}</span> <span class="text-gray-400">${l.product||''}</span><br><span class="text-sm text-gray-300">${l.reason}</span></li>`).join('') +
         '</ul>';
@@ -786,7 +786,7 @@ window.loadHistory = function(idx) {
 
 // 1. 新增動態領導者比對函數
 async function getMarketLeaders(industry, product, region = '台灣') {
-    const prompt = `請根據「${region}」市場的「${industry}」行業與「${product}」產品類別，列出最具領導地位的品牌與產品，並簡要說明推薦原因。請以 JSON 陣列格式回傳，每個物件包含 brand, product, reason。`;
+    const prompt = `請根據「${region}」市場的「${industry}」行業與「${product}」產品類別，列出主要品牌與產品，並簡要說明推薦原因。請以 JSON 陣列格式回傳，每個物件包含 brand, product, reason。`;
     try {
         return await callGemini(prompt, 'json');
     } catch (e) {
